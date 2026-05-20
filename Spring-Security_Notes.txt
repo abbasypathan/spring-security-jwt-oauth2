@@ -20,6 +20,58 @@ spring.security.user.password = ${SECURITY_USER_PASSWORD:admin}
 
 - Spring security internal flow
 
+User Entered Credentials
+        |
+      (1)
+        v
++---------------------------+
+| Spring Security Filters   |
++---------------------------+
+   |        |          |
+  (2)      (3)        (9)
+   |        |          v
+   v        v     +----------------+
++----------------+ | Security       |
+| Authentication | | Context        |
++----------------+ +----------------+
+        |
+       (3)
+        v
++-----------------------------+
+| Authentication Manager     |
++-----------------------------+
+        |
+       (4)
+        v
++----------------------------------+
+| Authentication Providers         |
++----------------------------------+
+     |                      |
+    (5)                    (6)
+     v                      v
++-------------------+   +------------------+
+| UserDetails       |   | Password Encoder |
+| Service/Manager   |   +------------------+
++-------------------+
+        |
+       (7)
+        v
++-----------------------------+
+| Authentication Manager     |
++-----------------------------+
+        |
+       (8)
+        v
++---------------------------+
+| Spring Security Filters   |
++---------------------------+
+        |
+       (10)
+        v
+User gets response (Authenticated / Failed)
+
+-------------------------------------------------------
+
 REQUEST
   |
   v
