@@ -1,0 +1,13 @@
+# Eclipse workspace files
+.metadata/
+*.classpath
+*.project
+.settings/
+.DS_Store
+
+# Compiled Java files
+bin/
+*.class
+
+# Ignore IDE-specific files (optional)
+*.log
