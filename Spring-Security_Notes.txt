@@ -1,0 +1,56 @@
+* Creating spring boot application
+
+- We can create template of spring boot application https://start.spring.io/
+- We can select build tool, java version, add dependency, package name, artifact id
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+* Spring Security
+
+- To enable the security we just have to add security dependency, It will ask for the username and password, username will be user & password is printed in console randomly generated
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+
+- We can configured our own username & password
+
+spring.security.user.name = ${SECURITY_USER_NAME:admin}
+spring.security.user.password = ${SECURITY_USER_PASSWORD:admin}
+
+- Spring security internal flow
+
+REQUEST
+  |
+  v
+Filters (Security Filter Chain)
+  |
+  v
+Authentication (if login)
+  |
+  v
+SecurityContextHolder stores user
+  |
+  v
+Authorization check (roles/permissions)
+  |
+  v
+DispatcherServlet
+  |
+  v
+Controller
+  |
+  v
+RESPONSE
+
+- Servlet container are web server/app server like tomcat, it convert http request into ServletRequest object
+- App processes request returns ServletResponse and again servlet convert response into http format
+- JSESSIONID as cookie created by spring security by default
+
+========================================================================================================================================================================================================
+
+** Changing default security configuration
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+========================================================================================================================================================================================================
