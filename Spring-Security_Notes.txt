@@ -305,6 +305,36 @@ public CompromisedPasswordChecker compromisedPasswordChecker() {
 
 ** Defining & Managing Users using a database
 
-- 
+1. Using same table schema which spring security uses by default
+
+- Setup Docker & warp command line interface
+- Setup MySQL database using docker
+- Command : docker run -p 3306:3306 --name springsecurity -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=eazybank -d mysql
+- -p : port(-p hostPort:containerPort), --name : is container name, -e : env variable, -d : detached mode no logs printed, mysql : docker image name which is already present in docker registry
+- Connect to the database using any client (DBever)
+- We need to add database configuration into properties file + need to add JDBC, MYSQL & Spring Data JPA dependency
+- We need to update UserDetailsService bean creation logic as below
+
+@Bean
+public UserDetailsService userDetailsService(DataSource dataSource) {
+    // It will connect to the database which we configured and fetch user details by username
+    // It will force you to use same schema which JdbcUserDetailsManager uses
+    return new JdbcUserDetailsManager(dataSource);
+}
+- Here we need to create same schema and tables names to store user credentials
+
+2. Creating our own custom tables
+
+- We can create JPA repository to same structure as our table schema to fetch user details
+- Then we need to provide implementation of loadUserByUsername() method by extending UserDetailsService interface  
+- In this we can fetch user by username/email and then create UserDetails object
+
+3. Adding REST API for registering user
+- We can use same repository to save user details in database
+- We need to add new endpoint into permitAll() in authentication config class
+- Even if we add new endpoint into config spring security won't allow to do it by default it will block DML operations (CSRF protection)
+- We need to provide implementation or need to disable it
+- We can disable using : http.csrf(csrfCOnfig -> csrfCOnfig.disable()) 
+
 
 ========================================================================================================================================================================================================
