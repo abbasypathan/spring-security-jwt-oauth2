@@ -164,5 +164,147 @@ http.httpBasic(hbc-> hbc.disable());
 
 ** Defining & Managing Users using InMemoryUserDetailsManager
 
+- In operation config we can use only single user so using InMemoryUserDetailsManager we can create different users with different roles
+
+@Bean
+public UserDetailsService userDetailsService() {
+    // If we try to use plain password it won't be able authorize ad spring by default this password is encoded
+    // by using {noop} we can explicitly mentation to spring that use as plain text
+    UserDetails user = User.withUsername("user").password("{noop}12345").authorities("read").build();
+    UserDetails admin = User.withUsername("admin").password("{noop}admin").authorities("admin").build();
+    return new InMemoryUserDetailsManager(user, admin);
+}
+
+- We can use password encoder to encode password
+- https://bcrypt-generator.com/ generate crypt hash value from plan text
+
+@Bean
+public UserDetailsService userDetailsService() {
+    // If we try to use plain password it won't be able to authorize ad spring by default this password is encoded
+    // by using {noop} we can explicitly mentation to spring that use as plain text
+    UserDetails user = User.withUsername("user").password("{noop}12345").authorities("read").build();
+    UserDetails admin = User.withUsername("admin").password("{bcrypt}$2a$12$ZGsrSHxI87v/r5DDSuaKeuPbTOMFfAc5ILnkrTYIlU9Hv907qTUpy").authorities("admin").build();
+    return new InMemoryUserDetailsManager(user, admin);
+}
+
+@Bean
+public PasswordEncoder passwordEncoder() {
+    // This is having multiple password encoder, we are using default encoder which is spring boot consider
+    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+}
+
+- We have option to add password checker for general common passwords
+
+//It will disallow user to use common password like password,1234 etc
+@Bean
+public CompromisedPasswordChecker compromisedPasswordChecker() {
+    return new HaveIBeenPwnedRestApiPasswordChecker();
+}
+
+- UserDetailsService used for get user details by username
+- UserDetailsManager have all options like create, update, change password, delete user
+
++------------------------------------------------------+
+|              UserDetailsService                      |
+|                    (Interface)                       |
++------------------------------------------------------+
+                         |
+                         v
+ Core interface which loads user-specific data.
+
+ Methods:
+   ✓ loadUserByUsername(String username)
+                         |
+                         v
++------------------------------------------------------+
+|               UserDetailsManager                     |
+|                    (Interface)                       |
++------------------------------------------------------+
+
+ Extension of UserDetailsService which provides:
+   - create new users
+   - update existing users
+   - delete users
+   - change password
+
+ Methods:
+   ✓ createUser(UserDetails user)
+   ✓ updateUser(UserDetails user)
+   ✓ deleteUser(String username)
+   ✓ changePassword(String oldPwd, String newPwd)
+   ✓ userExists(String username)
+
+          |                    |                    |
+          v                    v                    v
++----------------+   +----------------+   +----------------+
+| InMemoryUser   |   | JdbcUser       |   | LdapUser       |
+| DetailsManager |   | DetailsManager |   | DetailsManager |
++----------------+   +----------------+   +----------------+
+
+ Sample implementation classes provided by Spring Security team.
+
+- UserDetails is the interface which is having all user related data to authenticate
+- UserDetails is the return type in all scenarios where we try to load the user information from storage systems.
+  Used inside:
+   - UserDetailsService
+   - UserDetailsManager
+
++--------------------------------------------------+
+|                 UserDetails                      |
+|                  (Interface)                     |
++--------------------------------------------------+
+                        |
+                        v
++--------------------------------------------------+
+|                     User                         |
+|                    (Class)                       |
++--------------------------------------------------+
+
+ Methods:
+   ✓ getPassword()
+   ✓ getUsername()
+   ✓ getAuthorities()
+   ✓ isAccountNonExpired()
+   ✓ isAccountNonLocked()
+   ✓ isEnabled()
+   ✓ isCredentialsNonExpired()
+   ✓ eraseCredentials()
+
+- Authentication interface which also having same details & this is used to store in Security Context
+- Authentication is the return type in all the scenarios where we are trying to determine if the authentication is successful or not. Like inside the AuthenticationProvider & AuthenticationManager
+
++--------------------------------------------------+
+|                    Principal                     |
+|                   (Interface)                    |
++--------------------------------------------------+
+                        |
+                        v
++--------------------------------------------------+
+|                 Authentication                   |
+|                   (Interface)                    |
++--------------------------------------------------+
+
+ Methods:
+   ✓ getName()
+   ✓ getPrincipal()
+   ✓ getAuthorities()
+   ✓ getCredentials()
+   ✓ getDetails()
+   ✓ isAuthenticated()
+   ✓ setAuthenticated()
+   ✓ eraseCredentials()
+
+                        |
+                        v
++--------------------------------------------------+
+|      UsernamePasswordAuthenticationToken         |
+|                     (Class)                      |
++--------------------------------------------------+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+** Defining & Managing Users using a database
+
 - 
+
 ========================================================================================================================================================================================================
