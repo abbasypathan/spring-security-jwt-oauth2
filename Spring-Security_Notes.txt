@@ -160,7 +160,7 @@ http.httpBasic(hbc-> hbc.disable());
 
 - If we disabled both then we will get 403 as no option to authenticate user
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+========================================================================================================================================================================================================
 
 ** Defining & Managing Users using InMemoryUserDetailsManager
 
@@ -301,7 +301,7 @@ public CompromisedPasswordChecker compromisedPasswordChecker() {
 |                     (Class)                      |
 +--------------------------------------------------+
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+========================================================================================================================================================================================================
 
 ** Defining & Managing Users using a database
 
@@ -323,11 +323,15 @@ public UserDetailsService userDetailsService(DataSource dataSource) {
 }
 - Here we need to create same schema and tables names to store user credentials
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 2. Creating our own custom tables
 
 - We can create JPA repository to same structure as our table schema to fetch user details
 - Then we need to provide implementation of loadUserByUsername() method by extending UserDetailsService interface  
 - In this we can fetch user by username/email and then create UserDetails object
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 3. Adding REST API for registering user
 - We can use same repository to save user details in database
@@ -337,4 +341,74 @@ public UserDetailsService userDetailsService(DataSource dataSource) {
 - We can disable using : http.csrf(csrfCOnfig -> csrfCOnfig.disable()) 
 
 
+========================================================================================================================================================================================================
+
+** Password Management with PasswordEncoders
+
+- PasswordEncoder used to encrypt password and stored into DB
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1. Encoding
+- Encoding is defined as the process of converting data from one form to another and has nothing to do with cryptography.
+- It involves no secret and completely reversible.
+- Encoding can't be used for securing data. Below are the various publicly available algorithms used for encoding.
+- Ex: ASCII, BASE64, UNICODE
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2. Encryption
+- Encryption is defined as the process of transforming data in such a way that guarantees confidentiality.
+- To achieve confidentiality, encryption requires the use of a secret which, in cryptographic terms, we call a "key"
+- Encryption can be reversible by, using decryption with the help of the "key". As long as the "key" is confidential, encryption, can be considered as secured.
+
+A. Symmetric encryption
+- In symmetric key encryption, the same key used to encrypt the data is used to decrypt the data. Some famous symmetric encryption algorithms include AES, known for its security and used globally; Triple DES, an enhancement of DES providing better security; and Blowfish, notable for its speed and variable key lengths. Each offers distinct advantages for protecting data. symmetric key encryption is generally used for encrypting data at rest.
+- Data at rest means data are stored in someplace and used by single organization/application
+
+B. Asymmetric encryption
+- Asymmetric encryption functions like a unique lock with two distinct keys: one for locking (encrypting) and one for unlocking (decrypting). You keep the private key, which unlocks the message, secure with you, while freely distributing the public key to anyone who wants to send you an encrypted message. They use this public key to encrypt their message, and only you can decrypt it using your private key. This system ensures secure communication, as it relies on a pair of keys: a public key for encryption and a private key for decryption
+- Asymmetric key encryption is ideal for encrypting data in in-transit, where you need to share the key with another system. The most commonly used asymmetric algorithms include Rivest-Shamir-Adleman (RSA), Diffie-Hellman, Elliptic Curve Cryptography (ECC) and Pretty Good Privacy (PGP).
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3. Hashing (Use to stored credentials in DB)
+
+- In hashing, data is converted to the hash value using some hashing function.
+- Data once hashed is non-reversible. One cannot determine the original data from a hash value generated.
+- Given some arbitrary data along with the output of a hashing algorithm, one can verify whether this data matches the original input data without needing to see the original data
+
+A. Drawbacks
+- Hash value will be same foe same password, if 2 user have same password hash value also same
+- Brute force attack : Generating hash for common password and if hash value matches attacker easily can identify the password for user
+- Dictionary or Rainbow attack : attacker will have common password hash value in table with recalculated values if hash value match password will be exposed
+- Hashing is super fast it is easy for attacker to execute their logic to guess password
+
+B. Overcome of Drawbacks
+   a. Salt value during hashing password
+   - While generating hash of password we can add random string to the password and then generate hash and store random string and hash into DB
+   - With salt brut force still possible for that we can restrict user to use combination of password & keep 3 attempt after that we can lock accounts
+   b. Intentionally slowing hashing function
+   - Even if attacker have all db data with salt value if we slower the hashing function attacker needs lots of time to guess password 
+   - PBKDF2, bcrypt, scrypt and Argon2.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. PasswordEncoders
+
+- Spring security PasswordEncoder
+- This are the implementation of this interface PBKDF2, bcrypt, scrypt and Argon2.
+
+public interface PasswordEncoder {
+	String encode(CharSequence rawPassword);
+	boolean matches(CharSequence rawPassword, String encodedPassword);
+	
+	default boolean upgradeEncoding(String encodedPassword) {
+		return false;
+	}
+}
+
+========================================================================================================================================================================================================
+
+** Understanding Authentication Provider and Implementing it
+
+- 
 ========================================================================================================================================================================================================
