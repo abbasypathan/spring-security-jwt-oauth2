@@ -395,7 +395,7 @@ B. Overcome of Drawbacks
 4. PasswordEncoders
 
 - Spring security PasswordEncoder
-- This are the implementation of this interface PBKDF2, bcrypt, scrypt and Argon2.
+- This is the implementation of this interface PBKDF2, bcrypt, scrypt and Argon2.
 
 public interface PasswordEncoder {
 	String encode(CharSequence rawPassword);
@@ -410,5 +410,27 @@ public interface PasswordEncoder {
 
 ** Understanding Authentication Provider and Implementing it
 
-- 
+- By default spring security uses DaoAuthenticationProvider which expects UserDetailsService/Manager 
+- So default provider uses username & password for authentication if we have some custom requirement such as age validation or country authentication in that case we need to implement our own provider
+
+public interface AuthenticationProvider {
+	Authentication authenticate(Authentication authentication) throws AuthenticationException;
+	boolean supports(Class<?> authentication);
+}
+
+- The authenticate method receives and returns authentication object. We can implement all our custom authentication logic inside authentication method.
+- The second method in the AuthenticationProvider interface is supports(Class<?> authentication). You'll implement this method to return true if the current AuthenticationProvider supports the type of the Authentication object provided.
+
+- To create our own provider we need to implements AuthenticationProvider interface
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+* Env specifically security configuration
+
+- @Profile("!prod") - if not prod profile then it will be used
+- @Profile("prod") - if prod profile is active then it will use marked class
+
+========================================================================================================================================================================================================
+
+** Spring Security customizations for most common use cases
+
 ========================================================================================================================================================================================================
