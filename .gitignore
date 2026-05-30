@@ -11,3 +11,5 @@ bin/
 
 # Ignore IDE-specific files (optional)
 *.log
+
+**/.idea/
