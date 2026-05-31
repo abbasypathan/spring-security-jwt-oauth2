@@ -464,6 +464,24 @@ public interface AuthenticationProvider {
 
 4. Session Fixation, Session Hijacking Attacks
 
+- Session fixation attacks are a potential risk where it is possible for a malicious attacker to create a session by accessing a site, then persuade another user to log in with the same session (by sending them a link containing the session identifier as a parameter, for example). Spring Security protects against this automatically by creating a new session or otherwise changing the session ID when a user logs in.
+
+- In a session hijacking attack, the attacker steals the session IDs for a web application by eavesdropping on the communication between a user and an application or by gaining access to the user's computer or web browser data.
+
+A. changeSessionId() : Copy all data from previous but change the ID
+B. newSession() : Change ID and copy spring security related context only no user related data
+C. migrateSession() : Create new ID and copy all data
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5. Authentication Event
+
+- For each authentication that succeeds or fails, a AuthenticationSuccessEvent or AuthenticationFailureEvent, respectively, is fired by Spring Security framework. Spring Security provided DefaultAuthenticationEventPublisher takes care of publishing these events to the listeners. We as developers just need to build listeners to listen to these events and execute business logic based on our requirements.
+
+- By using Spring's @EventListener support, we can listen to the Authentication success event and failure event. Below is the sample code to log these events.
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6. Form Login Configurations for MVC or monolithic app
+
 - 
 
 ========================================================================================================================================================================================================

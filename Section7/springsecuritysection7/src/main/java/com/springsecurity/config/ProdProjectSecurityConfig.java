@@ -35,6 +35,8 @@ public class ProdProjectSecurityConfig {
         //http.requiresChannel(channel -> channel.anyRequest().requiresSecure())
         //http.redirectToHttps(Customizer.withDefaults())
 
+        //we can use different session fixation strategy which spring security provides
+        //http.sessionManagement(session -> session.sessionFixation(sfc -> sfc.none())
         //We can redirect to another page when session timeout
 
         http.sessionManagement(session -> session.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true))

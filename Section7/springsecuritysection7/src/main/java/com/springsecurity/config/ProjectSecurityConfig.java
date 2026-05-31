@@ -46,6 +46,8 @@ public class ProjectSecurityConfig {
 
         //Http basic authentication which will pass credential in basic 64 encoded form like Basic ADSGYUH876
         //http.httpBasic(withDefaults());
+        //Using our own exception handler
+        http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthEntryPoint()));
 
         //Global config for custom auth exception handling
         //http.exceptionHandling(ehc-> ehc.authenticationEntryPoint(new CustomBasicAuthEntryPoint()));
