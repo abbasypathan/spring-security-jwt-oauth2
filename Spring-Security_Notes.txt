@@ -431,15 +431,39 @@ public interface AuthenticationProvider {
 
 ========================================================================================================================================================================================================
 
-** Spring Security customizations for most common use cases
+** Spring Security customizations for most common use cases (Section7)
 
-1. 
+1. Accepting only HTTPS protocol
+
+- Allow only http protocol http.redirectToHttps(https -> https.disable())
+- Allow only https protocol http.redirectToHttps(Customizer.withDefaults())
+- https://localhost:8443 with TLS configuration 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-2. 
+2. Exception handling in Spring Security
 
+- 403(AccessDeniedHandler) -> user authenticate but no enough permission to access
+- 401(AuthenticationEntryPoint) -> user not authorized 
+- Inside Spring Security authentication & authorization related exceptions are handled by ExceptionTranslationFilter
+- Need to pass object of custom exception into basic auth in SeurityConfig class http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthEntryPoint()));
+- Need to configured global exception for access denied error in SeurityConfig class http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-3. 
+3. Session timeout & session configuration
+
+- By default session is 30 min timeout, where JSESSIONID is stored by spring security
+- We can configured session server.servlet.session.timeout=${SESSION_TIMEOUT:2m}
+- Default allowed time is greater than or equal to 2m
+- We can redirect user to another page when session is invalid http.sessionManagement(session -> session.invalidSessionUrl("/invalidSession"))
+- We can set number of session for an user http.sessionManagement(session -> session.invalidSessionUrl("/invalidSession").maximumSessions(1))
+- Default multiple session are allowed
+- It will create new session and previous will be invalidated(default behavior)
+- We can keep first session and block 2nd session creation http.sessionManagement(session -> session.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. Session Fixation, Session Hijacking Attacks
+
+- 
+
 ========================================================================================================================================================================================================
