@@ -1,5 +1,8 @@
 package com.eazybytes.eazyschool.config;
 
+import com.eazybytes.eazyschool.handler.CustomAuthenticationFailureHandler;
+import com.eazybytes.eazyschool.handler.CustomAuthenticationSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
@@ -15,7 +18,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
 @Configuration
+@RequiredArgsConstructor
 public class ProjectSecurityConfig {
+
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -23,8 +30,23 @@ public class ProjectSecurityConfig {
         http.csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests.requestMatchers("/dashboard").permitAll()
                         .requestMatchers("/", "/home", "/holidays/**", "/contact", "/saveMsg",
-                                "/courses", "/about", "/assets/**").permitAll())
-                .formLogin(Customizer.withDefaults())
+                                "/courses", "/about", "/assets/**", "/login/**").permitAll())
+                // flc.loginPage("/login") : load provided login page for user
+                // .defaultSuccessUrl("/dashboard") : after successful login, redirect to dashboard page
+                //.usernameParameter("userId") : change default username parameter name to userId
+                // .passwordParameter("secretPwd") : change default password parameter name to secretPwd
+                //.successHandler(customAuthenticationSuccessHandler) : custom success handler
+                // .failureHandler(customAuthenticationFailureHandler) : custom failure handler
+                .formLogin(flc -> flc.loginPage("/login")
+                        .usernameParameter("userId").passwordParameter("secretPwd")
+                        .defaultSuccessUrl("/dashboard").failureUrl("/login?error=true")
+                        .successHandler(customAuthenticationSuccessHandler).failureHandler(customAuthenticationFailureHandler))
+                // redirect to page when user logout
+                //.invalidateHttpSession(true) : invalidate session
+                // .clearAuthentication(true) : clear authentication
+                // .deleteCookies("JSESSIONID") : delete cookies
+                .logout(logout -> logout.logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true).clearAuthentication(true).deleteCookies("JSESSIONID"))
                 .httpBasic(Customizer.withDefaults());
 
         return http.build();

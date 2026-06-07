@@ -482,6 +482,49 @@ C. migrateSession() : Create new ID and copy all data
 
 6. Form Login Configurations for MVC or monolithic app
 
-- 
+- We can direct custom login page, error page
+- We can manage which button to be shown before login and after login
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+7. SecurityContext & SecurityContextHolder
+
+┌──────────────────────────────────────────────┐
+│           SecurityContextHolder              │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│              SecurityContext                 │
+└──────────────────────────────────────────────┘
+                      │
+                      ▼
+┌──────────────────────────────────────────────┐
+│              Authentication                  │
+├─────────────┬──────────────┬─────────────────┤
+│ Principal   │ Credentials  │ Authorities     │
+├─────────────┼──────────────┼─────────────────┤
+│ UserDetails │ Password/JWT │ ROLE_USER       │
+│ Username    │              │ ROLE_ADMIN      │
+└─────────────┴──────────────┴─────────────────┘
+
+- SecurityContextHolder does not store the SecurityContext directly. It delegates storage to a SecurityContextHolderStrategy.
+
+1. MODE_THREADLOCAL (Default)
+- Each thread gets its own context.
+
+2. MODE_INHERITABLETHREADLOCAL
+- The child thread inherits the parent's security context.
+
+3. MODE_GLOBAL
+- Stores one global context for the entire JVM.
+
+* Loading authentication details
+
+- By calling getConext() using ContextHolder we can get current authentication object and can get user details
+- Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+- Or we can directly use Authentication object in controller method parameters it will map automatically 
+========================================================================================================================================================================================================
+
+** Understanding CORs & CSRF
 
 ========================================================================================================================================================================================================
