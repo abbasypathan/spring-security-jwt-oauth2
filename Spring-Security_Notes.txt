@@ -527,4 +527,8 @@ C. migrateSession() : Create new ID and copy all data
 
 ** Understanding CORs & CSRF
 
+1. CORS - Cross Origin Resource Sharing
+2. CSRF - Cross Site Request Forgery
+
+
 ========================================================================================================================================================================================================
