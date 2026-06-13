@@ -531,4 +531,13 @@ C. migrateSession() : Create new ID and copy all data
 2. CSRF - Cross Site Request Forgery
 
 
+CORS :
+
+- CORS is a protocol that enables scripts running on a browser client to interact with resources from a different origin. For example, if a Ul app wishes to make an API call running on a different domain, it would be blocked from doing so by default due to CORS. It is a specification from W3C implemented by most browsers.
+So CORS is not a security issue/attack but the default protection provided by browsers to stop sharing the data/communication between different origins.
+
+A. Multiple option to fix CORS issue
+
+- We can add @CrossOrigin(origins = "*") //Instead of * we can use specific host which is calling our API
+
 ========================================================================================================================================================================================================

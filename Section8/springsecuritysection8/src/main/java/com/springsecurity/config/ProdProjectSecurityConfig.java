@@ -42,7 +42,7 @@ public class ProdProjectSecurityConfig {
         http.sessionManagement(session -> session.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true))
                 .csrf(csrfConfig -> csrfConfig.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
+                        .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards","/user").authenticated()
                         .requestMatchers("/notices", "/contact", "/register", "/error", "/invalidSession").permitAll());
         //Default authentication login page where we can enter credentials
         http.formLogin(withDefaults());
