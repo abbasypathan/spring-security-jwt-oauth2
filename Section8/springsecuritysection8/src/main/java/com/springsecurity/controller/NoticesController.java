@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequiredArgsConstructor
 //@CrossOrigin(origins = "http://localhost:4200")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class NoticesController {
 
     private final NoticeRepository noticeRepository;

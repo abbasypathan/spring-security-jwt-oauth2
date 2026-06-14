@@ -539,5 +539,30 @@ So CORS is not a security issue/attack but the default protection provided by br
 A. Multiple option to fix CORS issue
 
 - We can add @CrossOrigin(origins = "*") //Instead of * we can use specific host which is calling our API
+- We can configured CORS related configuration globally using SecurityFilterChain
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CSRF :
+
+- POST, UPDATE, PATCH, DELETE this are method which blocked by Spring CSRF policy
+- We can get data using GET method
+- Spring CSRF policy is based on HTTP method
+
+A. Options to fix CSRF issue
+
+- We have to use CSRF token which we need to pass inside header or payload
+- By default browser will send as part of cookie
+- Once we add configuration related to CSRF it will generate XSRF-TOKEN and sent back as cookie we need to extract and pass value as part of header X-XSRF-TOKEN
+
+CsrfToken - Provides the information/contract about an expected CSRF token.
+CsrfTokenRepository - Provides the contract to create, store, and load CSRF tokens. HttpSessionCsrfTokenRepository(stores the (srfToken in the HttpSession), CookieCsrfTokenRepository (persists the CSRF token in a cookie named "XSRF-TOKEN" and reads from the header "X-SRF-TOKEN" following the conventions of Angular) are the typically used implementation classes.
+CsrfTokenRequestHandler - A callback interface that is used to make the CsrfToken created by the CsrfTokenRepository available as a request attribute. Implementations of this interface may choose to perform additional tasks or customize how the token is made available to the application through request attributes. CrfTokenRequestAttributeHandler is the typically used implementation classes.
+CsrfFilter - Spring Security in built filter responsible to validate the CSRF token received by client and to decide whether to throw an exception or not.
+CsrfCookieFilter - Custom Filter written by developer to send the generated CSRF token back to client inside the response header
+
+========================================================================================================================================================================================================
+
+** Implementing Authorization using Authorities, Roles
 
 ========================================================================================================================================================================================================
