@@ -565,4 +565,75 @@ CsrfCookieFilter - Custom Filter written by developer to send the generated CSRF
 
 ** Implementing Authorization using Authorities, Roles
 
+1. AUTHENTICATION : In authentication, the identity of users are checked for providing the access to the system.
+2. AUTHORIZATION : In authorization, person's or user's authorities are checked for accessing the resources.
+
++----------------------------------+       +----------------------------+
+| Authentication                   |       | UserDetails                |
+| (Interface)                      |       | (Interface)                |
++----------------------------------+       +----------------------------+
+                 |                                      |
+                 | implements                           | implements
+                 v                                      v
++----------------------------------+       +----------------------------+
+| UsernamePasswordAuthentication   |       | User                       |
+| Token (Class)                    |       | (Class)                    |
++----------------------------------+       +----------------------------+
+                 |                                      |
+                 | getAuthorities()                     | getAuthorities()
+                 v                                      v
+         Returns GrantedAuthority              Returns GrantedAuthority
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2.1 AUTHORITY
+- Authority is like an individual privilege or an action
+- Restricting access in a fine-grained manner
+- Ex: VIEWACCOUNT, VIEWCARDS etc.
+
+- In Spring Security the authorities requirements can be configured using the following ways.
+
+hasAuthority() - Accepts a single authority for which the endpoint will be configured and user will be validated against the single authority mentioned. Only users having the same authority configured can invoke the endpoint.
+
+hasAnyAuthority() - Accepts multiple authorities for which the endpoint will be configured and user will be validated against the authorities mentioned. Only users having any of the authority configured can invoke the endpoint.
+
+access () - Using Spring Expression Language (SpEL) it provides you unlimited possibilities for configuring authorities which are not possible with the above methods. We can use operators like OR, AND inside access () method.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2.2 ROLE
+- ROLE is a group of privileges/actions
+- Restricting access in a coarse-grained manner
+- Ex: ROLE_ADMIN, ROLE_USER
+- By default we have to provide ROLE_ or we can configured custom prefix for the role as well
+
+- You can configure the authorization rules to use a different prefix by providing a GrantedAuthorityDefaults bean, as shown below:
+
+@Bean
+static GrantedAuthorityDefaults grantedAuthorityDefaults () {
+	return new GrantedAuthorityDefaults ("MYPREFIX_");
+}
+
+- You need to expose GrantedAuthorityDefaults using a static method to ensure that Spring publishes it before initializing Spring Security's method security @Configuration classes
+
+- In Spring Security the ROLES requirements can be configured using the following ways, 
+hasRole() - Accepts a single role name for which the endpoint will be configured and user will be validated against the single role mentioned. Only users having the same role configured can invoke the endpoint.
+
+hasAnyRole() - Accepts multiple roles for which the endpoint will be configured and user will be validated against the roles mentioned. Only users having any of the role configured can call the endpoint.
+
+access() - Using Spring Expression Language (SpEL) it provides you unlimited possibilities for configuring roles which are not possible with the above methods. We can use operators like OR, AND inside access() method.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+* Authorization Event
+
+- By default, spring boot does not produce authorization success events we can configure if required
+    
+@EventListener
+public void onFailure(AuthorizationDeniedEvent authorizationDeniedEvent) {
+    log.error("Authorization failed for the user : {} due to : {}", authorizationDeniedEvent.getAuthentication().get().getName(),
+        authorizationDeniedEvent.getAuthorizationResult());
+}
+
 ========================================================================================================================================================================================================
