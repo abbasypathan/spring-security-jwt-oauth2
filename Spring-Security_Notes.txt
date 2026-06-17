@@ -637,3 +637,26 @@ public void onFailure(AuthorizationDeniedEvent authorizationDeniedEvent) {
 }
 
 ========================================================================================================================================================================================================
+
+** Custom Filter
+
+- In Java web apps, Servlet Container (Web Server) takes care of translating the HTTP messages for Java code to understand. One of the mostly used servlet container is Apache Tomcat. Servlet Container converts the HTTP messages into ServletRequest and hand over to Servlet method as a parameter. Similarly, ServletResponse returns as an output to Servlet Container from Servlet.
+So everything we write inside Java web apps are driven by Servlets
+
+- @EnableWebSecurity(debug = true) : Enables debug log for spring security related flow
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+* Configure Custom Filter
+
+- Filter(Interface) & GenericFilterBean(Abstract Class),OncePerRequestFilter(Abstract Class) by implementing this we can create our custom filter
+- addFilter(custom_filter) : Here we have to add @Order annotation and at that particular position in chain it will add
+- addFilterBefore(custom_filter,AnyFilter.class) : Add before the filter which we specify and execute
+- addFilterAfter(custom_filter,AnyFilter.class) : Add after the filter which we specify and execute
+- addFilterAt(custom_filter,AnyFilter.class) : Add at same position the filter which we specify but execution depends on spring security how it will execute
+
+========================================================================================================================================================================================================
+
+** Token based Authentication using JSON Web Token (JWT)
+
+========================================================================================================================================================================================================

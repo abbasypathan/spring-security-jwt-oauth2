@@ -1,0 +1,138 @@
+package com.springsecurity.config;
+
+import com.springsecurity.exceptionhandling.CustomAccessDeniedHandler;
+import com.springsecurity.exceptionhandling.CustomBasicAuthEntryPoint;
+import com.springsecurity.filter.AuthoritiesLoggingAfterFilter;
+import com.springsecurity.filter.AuthoritiesLoggingAtFilter;
+import com.springsecurity.filter.CsrfCookieFilter;
+import com.springsecurity.filter.RequestValidationBeforeFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.authentication.password.CompromisedPasswordChecker;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
+@Configuration
+@Profile("!prod")
+public class ProjectSecurityConfig {
+
+    @Bean
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler = new CsrfTokenRequestAttributeHandler();
+        // It will require authentication for all request
+        /*http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());*/
+
+        //It will permit all request without authentication
+        /*http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());*/
+
+        //It will deny all request even if user is authenticated
+        /*http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());*/
+
+        //Here few will be required authentication & few are not
+        // Using http.csrf() we are disable CSRF restriction
+        // http.requiresChannel() accepts only http protocol
+
+        http.securityContext(contextConfig -> contextConfig.requireExplicitSave(false))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                //http.cors() We can add CORS config globally for all controller
+                .cors(corsConfig -> corsConfig.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public @Nullable CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        CorsConfiguration config = new CorsConfiguration();
+                        config.setAllowCredentials(true);
+                        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+                        config.setAllowedMethods(Collections.singletonList("*"));
+                        config.setAllowedHeaders(Collections.singletonList("*"));
+                        config.setMaxAge(3600L);
+                        return config;
+                    }
+                }))
+                //.sessionManagement(session -> session.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true))
+                //.redirectToHttps(https -> https.disable())
+                //.csrf(csrfConfig -> csrfConfig.disable())
+                // CookieCsrfTokenRepository.withHttpOnlyFalse() UI side they can able to read CSRF cookie value to pass in header
+                .csrf(csrfConfig -> csrfConfig.csrfTokenRequestHandler(csrfTokenRequestAttributeHandler)
+                        .ignoringRequestMatchers("/contact", "/register")
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new AuthoritiesLoggingAfterFilter(), BasicAuthenticationFilter.class)
+                .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
+                .authorizeHttpRequests((requests) -> requests
+                        //.requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards", "/user").authenticated()
+//                        .requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
+//                        .requestMatchers("/myBalance").hasAnyAuthority("VIEWBALANCE", "VIEWACCOUNT")
+//                        .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
+//                        .requestMatchers("/myCards").hasAuthority("VIEWCARDS")
+//                        .requestMatchers("/user").authenticated()
+                        .requestMatchers("/myAccount").hasRole("USER")//ROLE_USER - in Database
+                        .requestMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/myLoans").hasRole("USER")
+                        .requestMatchers("/myCards").hasRole("USER")
+                        .requestMatchers("/user").authenticated()
+                        .requestMatchers("/notices", "/contact", "/register", "/error", "/invalidSession").permitAll());
+        //Default authentication login page where we can enter credentials
+        http.formLogin(withDefaults());
+
+        // It will diable form login authentication
+        //http.formLogin(flc -> flc.disable());
+
+        //Http basic authentication which will pass credential in basic 64 encoded form like Basic ADSGYUH876
+        //http.httpBasic(withDefaults());
+        //Using our own exception handler
+        http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthEntryPoint()));
+
+        //Global config for custom auth exception handling
+        //http.exceptionHandling(ehc-> ehc.authenticationEntryPoint(new CustomBasicAuthEntryPoint()));
+        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
+
+        //It will disable http basic authentication
+        // http.httpBasic(hbc-> hbc.disable());
+        return http.build();
+    }
+
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+//        // If we try to use plain password it won't be able to authorize ad spring by default this password is encoded
+//        // by using {noop} we can explicitly mentation to spring that use as plain text
+//        UserDetails user = User.withUsername("user").password("{noop}Abbas@143").authorities("read").build();
+//        // Hash value of Pathan@143
+//        UserDetails admin = User.withUsername("admin").password("{bcrypt}$2a$12$3nxsV2eptwnUx5Op9ObgqOXqItVGpQTnqp.DhhCxohWmHIeDmkWJW").authorities("admin").build();
+//        return new InMemoryUserDetailsManager(user, admin);
+//    }
+
+//    @Bean
+//    public UserDetailsService userDetailsService(DataSource dataSource) {
+//        // It will connect to the database which we configured and fetch user details by username
+//        // It will force you to use same schema which JdbcUserDetailsManager uses
+//        return new JdbcUserDetailsManager(dataSource);
+//    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // This is having multiple password encoder, we are using default encoder which is spring boot consider
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    //It will disallow user to use common password like password,1234 etc
+    //@Bean
+    public CompromisedPasswordChecker compromisedPasswordChecker() {
+        return new HaveIBeenPwnedRestApiPasswordChecker();
+    }
+}
