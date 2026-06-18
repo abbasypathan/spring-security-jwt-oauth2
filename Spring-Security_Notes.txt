@@ -659,4 +659,42 @@ So everything we write inside Java web apps are driven by Servlets
 
 ** Token based Authentication using JSON Web Token (JWT)
 
+* Token Format
+
+- Opaque tokens are suitable for scenarios where token validation by a central server is feasible, such as within a secure internal network where as JWT tokens are ideal for stateless, distributed systems where quick token validation is needed without frequent server calls.
+
+1. Opaque Token
+- An opaque token has no readable structure to clients
+- Random string
+- Stored and validated on the authorization server
+- Client cannot decode it
+
+2. JSON Web Token (JWT)
+- A JWT consists of three parts separated by dots (.) : header.payload.signature(Optional)
+- Stateless and can be self validated
+- All part are in JSON format and we convert same into Base64 encoded
+- Using secret key signature hash will be generated and same again generated when request hit with JWT token if both are matched then it success
+
+A. Header
+
+- Inside the JWT header, we store metadata/info related to the token. If we chose to sign the token, the header contains the name of the algorithm that generates the signature.
+{
+    "alg": "HS256",
+    "typ": "JWT"
+}
+
+B. Payload
+
+- In the body, we can store details related to user, roles etc. which can be used later for AuthN and AuthZ. Though there is no such limitation what we can send and how much we can send in the body, but we should put our best efforts to keep it as light as possible.
+
+{
+    "sub": " 1234567890",
+    "name": "John Doe",
+    "iat": 1516239022
+}
+
+C. Signature
+
+- It is combination of  header + payload and secret value
+- HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)
 ========================================================================================================================================================================================================
