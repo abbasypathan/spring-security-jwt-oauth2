@@ -36,7 +36,7 @@ public class JWTTokenGeneratorFilter extends OncePerRequestFilter {
                         .setSubject("JWT Token")
                         .claim("username", authentication.getName())
                         .claim("authorities", authentication.getAuthorities().stream()
-                                .map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.joining()))
+                                .map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.joining(",")))
                         .issuedAt(new Date())
                         .expiration(new Date((new Date()).getTime() + 3000000)) // 50 minutes
                         .signWith(secretKey)
