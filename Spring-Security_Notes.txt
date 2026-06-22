@@ -699,3 +699,25 @@ C. Signature
 - HMACSHA256(base64UrlEncode(header) + "." + base64UrlEncode(payload), secret)
 
 ========================================================================================================================================================================================================
+
+** Method Level Security
+
+- As of now we have applied authorization rules on the API paths/URLs using spring security but method level security allows to apply the authorization rules at any layer of an application like in service layer or repository layer etc. Method level security can be enabled using the annotation @EnableMethodSecurity on the configuration class.
+- Method level security will also helps authorization rules even in the non-web applications where we will not have any endpoints.
+
+- Invocation authorization : Validates if someone can invoke a method or not based on their roles/authorities.
+- Filtering authorization : Validates what a method can receive through its parameters and what the invoker can receive back from the method post business logic execution
+
+- Spring security will use the aspects from the AOP module and have the interceptors in between the
+method invocation to apply the authorization rules configured.
+- Method level security offers below 3 different styles for configuring the authorization rules on top of the methods,
+- The prePostEnabled property which enabled by default enables Spring Security @PreAuthorize &
+	- @PostAuthorize annotations
+	- The securedEnabled property enables @Secured annotation
+	- The jsr250Enabled property enables @RoleAllowed annotation
+
+@Configuration
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+public class ProjectSecurityConfig {
+
+}
